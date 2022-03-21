@@ -156,7 +156,7 @@ std::string UserState::getMyChats()
     return std::string("Chats:\n") + chats;
 }
 
-UserState::disconnect()
+void UserState::disconnect()
 {
     mExit.store(true);
     if (mRecvThread)
