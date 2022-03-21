@@ -74,5 +74,6 @@ public:
 
     std::string getMyChats();
 
+    void disconnect();
     ~UserState();
 };

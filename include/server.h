@@ -25,9 +25,16 @@ class Client
 	UserState state;
 	Database & mDB;
 	SocketPtr mSocket;
+	bool valid = false;
 public:
-	Client(Database & db, ba::io_service &io_service) : mDB(db), mSocket{std::make_shared<ba::ip::tcp::socket>(io_service)}, state(mSocket, db)
+	Client(Database & db, ba::io_service &io_service) : mDB(db), mSocket{std::make_shared<ba::ip::tcp::socket>(io_service)}, state(mSocket, db), valid(true)
                                                                     {};
+	void invalidateClient()
+	{
+		state.disconnect();
+		valid = false;
+	}
+
 	void read_handler(const boost::system::error_code &ec, std::size_t bytes_transferred)
 	{
 		if (!ec)
@@ -38,7 +45,8 @@ public:
 		}
 		else
 		{
-			this->~Client();
+			invalidateClient();
+			return;
 		}
 		ba::async_read(*mSocket, ba::buffer(data, 512), boost::bind(&Client::up_to_enter, this, ba::placeholders::error, ba::placeholders::bytes_transferred), boost::bind(&Client::read_handler, this, ba::placeholders::error, ba::placeholders::bytes_transferred));
 	}

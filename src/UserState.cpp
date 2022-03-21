@@ -156,11 +156,19 @@ std::string UserState::getMyChats()
     return std::string("Chats:\n") + chats;
 }
 
-UserState::~UserState()
+UserState::disconnect()
 {
     mExit.store(true);
     if (mRecvThread)
         mRecvThread->join();
+
     if(connState >= ConnectionState::AUTHORIZED)
         mDb.update_connected(userid, false);
+
+    connState = ConnectionState::UNREGISTERED;
+}
+
+UserState::~UserState()
+{
+    disconnect();
 }
